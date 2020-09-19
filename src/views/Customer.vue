@@ -1,7 +1,10 @@
 <template>
-<!-- 顾客管理 -->
+  <!-- 顾客管理 -->
   <div id="customer">
-    <h4 style="margin:0px">{{name}}</h4>
+    <h4 style="margin:0px">
+      {{name}}
+      <!-- {{this.$store.state.customer.list}} -->
+    </h4>
     <!-- 按钮 -->
     <el-button type="primary" @click="toAddHandler()" size="small" style="margin:5px">添加</el-button>
     <el-button type="danger" @click="selectDeleteHandler()" size="small">批量删除</el-button>
@@ -39,7 +42,7 @@
     <!-- 表格 -->
     <!-- {{ids}} -->
     <el-table
-      :data="tableData"
+      :data="list"
       height="375"
       v-loading="loading"
       @selection-change="handleSelectionChange"
@@ -65,7 +68,7 @@ export default {
   data() {
     return {
       name: "顾客管理",
-      tableData: [],
+      // tableData: [],
       ids: [],
       loading: false,
       formTitle: "",
@@ -80,27 +83,33 @@ export default {
     };
   },
   created() {
-    this.reloadData();
+    // this.reloadData();
+    this.$store.dispatch("reloadData");
+  },
+  computed: {
+    list() {
+      return this.$store.state.customer.list;
+    },
   },
   methods: {
     //重载
-    reloadData() {
-      let that = this;
-      that.loading = true;
-      $.ajax({
-        url: "http://121.40.187.6:6677/customer/findAll",
-        method: "get",
-        success: function (resp) {
-          that.tableData = resp.data;
-          that.loading = false;
-        },
-      });
-      // let url="http://121.40.187.6:6677/customer/findAll"
-      // $.get(url,(resp)=>{
-      //     this.tableData = resp.data;
-      //     // this.loading=true
-      // })
-    },
+    // reloadData() {
+    //   let that = this;
+    //   that.loading = true;
+    //   $.ajax({
+    //     url: "http://121.40.187.6:6677/customer/findAll",
+    //     method: "get",
+    //     success: function (resp) {
+    //       that.tableData = resp.data;
+    //       that.loading = false;
+    //     },
+    //   });
+    // let url="http://121.40.187.6:6677/customer/findAll"
+    // $.get(url,(resp)=>{
+    //     this.tableData = resp.data;
+    //     // this.loading=true
+    // })
+    // },
     //添加
     toAddHandler() {
       this.formTitle = "添加顾客";
@@ -109,34 +118,35 @@ export default {
     },
     //删除
     toDeleteHandler(id) {
-      //   alert(id);
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          let url = "http://121.40.187.6:6677/customer/deleteById";
-          $.get(url, { id }, (resp) => {
-            this.$message({
-              type: "success",
-              message: "删除成功!",
-            });
-            this.reloadData();
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
+      this.$store.dispatch("DeleteHandler",id);
+      // // alert(id);
+      // this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+      //   confirmButtonText: "确定",
+      //   cancelButtonText: "取消",
+      //   type: "warning",
+      // })
+      //   .then(() => {
+      //     let url = "http://121.40.187.6:6677/customer/deleteById";
+      //     $.get(url, { id }, (resp) => {
+      //       this.$message({
+      //         type: "success",
+      //         message: "删除成功!",
+      //       });
+      //       this.$store.dispatch("reloadData");
+      //     });
+      //   })
+      //   .catch(() => {
+      //     this.$message({
+      //       type: "info",
+      //       message: "已取消删除",
+      //     });
+      //   });
     },
     //修改
     toUpdateHandler(row) {
       this.formTitle = "修改顾客";
       this.centerDialogVisible = true;
-      //   alert(JSON.stringify(row));
+      //  alert(JSON.stringify(row));
       this.addForm = row;
     },
     //当复选按钮发生变化
@@ -164,7 +174,7 @@ export default {
                 type: "success",
                 message: "删除成功!",
               });
-              this.reloadData();
+              this.$store.dispatch("reloadData");
             } else {
               //查询字符串自动转换有问题，后台接口问题ids=%5B26%5D
               this.$message({
@@ -193,34 +203,33 @@ export default {
           type: "success",
         });
         this.centerDialogVisible = false;
-        this.reloadData();
+        this.$store.dispatch("reloadData");
       });
     },
     //查询
-    toQueryHandler(){
-        this.loading=true
+    toQueryHandler() {
+      this.loading=true
     },
   },
 };
 </script>
 <style>
-body{
-    margin: 0px;
-    padding: 0px;
+body {
+  margin: 0px;
+  padding: 0px;
 }
-.top{
-    background-color: rgb(32, 216, 210);
+.top {
+  background-color: rgb(32, 216, 210);
 }
-.left{
-    height:458px ;
-    background-color: rgb(255, 197, 149);
+.left {
+  height: 458px;
+  background-color: rgb(255, 197, 149);
 }
-.content{
-    width:1080px ;
-    background-color: rgb(248, 198, 255);
+.content {
+  width: 1080px;
+  background-color: rgb(248, 198, 255);
 }
-.bottom{
-    background-color:rgb(181, 187, 255);
+.bottom {
+  background-color: rgb(181, 187, 255);
 }
-
 </style>
